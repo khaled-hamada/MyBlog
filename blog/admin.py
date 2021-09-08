@@ -9,6 +9,7 @@ class PostAdmin(admin.ModelAdmin):
     raw_id_fields = ('author',)
     date_hierarchy = 'published'
     ordering = ('status', 'published')
+    
 
 
 admin.site.register(Post, PostAdmin)
