@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'blog',
+    'taggit',
 
 ]
 
@@ -133,5 +134,5 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_USE_TLS = True
 EMAIL_PORT = 587
-EMAIL_HOST_USER = "add your mail here"
-EMAIL_HOST_PASSWORD = "add your password here"
+EMAIL_HOST_USER = "add yours here "
+EMAIL_HOST_PASSWORD = "add yours here"

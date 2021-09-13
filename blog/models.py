@@ -3,6 +3,8 @@ from django.utils import timezone
 from django.contrib.auth.models import User
 from django.urls import reverse
 
+from taggit.managers import TaggableManager
+
 class PublishedManager(models.Manager):
     """ custom post manager to filter data by status """
     def get_queryset(self):
@@ -16,7 +18,7 @@ class Postable(models.Model):
     class Meta:
         abstract = True
 
-class Post(Postable, models.Model):
+class Post(Postable):
     """  A post model class to create blog posts """
     STATUS_CHOICES = (
         ('draft', 'Draft'),
@@ -33,6 +35,7 @@ class Post(Postable, models.Model):
     status = models.CharField(max_length = 16,
                               choices=STATUS_CHOICES,
                               default = 'draft')
+    tags = TaggableManager()
 
     class Meta:
         ordering = ('-published',)
@@ -51,7 +54,7 @@ class Post(Postable, models.Model):
         )
                            
     
-class Comment(Postable, models.Model):
+class Comment(Postable):
     post = models.ForeignKey(Post, on_delete=models.CASCADE,
                              related_name= 'comments')
     name = models.CharField(max_length=254)
