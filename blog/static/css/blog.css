@@ -82,6 +82,9 @@ input[type=submit] {
 .comment {
     padding:10px;
 }
+.success{
+   color:#00abff; 
+}
 .comment:nth-child(even) {
     background:#efefef;
 }

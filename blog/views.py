@@ -46,7 +46,10 @@ def post_detail(request, year, month, day, post):
     if request.method == 'POST':
         # validate data 
         comment_form = CommentPostForm(request.POST)
+        
         if comment_form.is_valid():
+            # print(comment_form.cleaned_data)
+            # print(request.POST)
             # create but do not save to the db
             new_comment = comment_form.save(commit=False)
             new_comment.post = post

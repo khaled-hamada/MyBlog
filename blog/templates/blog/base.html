@@ -1,3 +1,4 @@
+{% load blog_tags %}
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
@@ -23,7 +24,22 @@
     <div id="sidebar">
         
        <h2>My Blog</h2>
-       <p> This is my Blog.</p>
+       <p> This is my Blog I've written {% total_posts %} posts until now.</p>
+       <h3>Latest Posts</h3>
+       {% show_latest_posts  %}
+
+       <h3>Most Commented Posts</h3>
+       {% get_most_commented_posts as popular %}
+       <ul>
+            {% for post in popular %}
+                <li>
+                    <a href="{{ post.get_absolute_url }}">
+                        {{post.title}}, {{post.comCount}}
+                    </a>
+                </li>
+            {% endfor %}
+       </ul>
+       
 
     </div>
 </body>
