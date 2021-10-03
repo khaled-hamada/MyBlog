@@ -1,10 +1,13 @@
 from django.shortcuts import render, get_object_or_404
-from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.views.generic import ListView
 from django.core.mail import send_mail
-from django.db.models import Count
+from django.contrib.postgres.search import SearchQuery, SearchRank, SearchVector, TrigramSimilarity
+
+
 from .models import Post, Comment
-from .forms import  EmailPostForm, CommentPostForm
+from .forms import  EmailPostForm, CommentPostForm,\
+                    SearchForm
+
 
 from taggit.models import Tag
 class PostList(ListView):
@@ -59,12 +62,9 @@ def post_detail(request, year, month, day, post):
     else:
         comment_form = CommentPostForm()
     # get similar posts to recommend to the user 
-    tags_list = post.tags.values_list('id', flat = True)
-    similar_posts = Post.publishedPosts.filter(tags__in = tags_list ).\
-                     exclude(id = post.id)
-    similar_posts = similar_posts.annotate(tags_count = Count('tags')).\
-                    order_by('-tags_count', '-published')[:4]
     # see how the query is converted to sql 
+    # last 4 posts ordered by tags_count and published date
+    similar_posts = Post.publishedPosts.similar_posts(post.id)[:4]
     # print(similar_post.query)                
     return render(request, 'blog/post/detail.html',
                  {
@@ -109,3 +109,110 @@ def post_share(request, post_id: int) :
                     'form':form,
                     'sent':send,
                     })
+
+
+
+def post_search(request):
+    form = SearchForm()
+    query = None
+    results = []
+
+    if "query" in request.GET:
+        form = SearchForm(request.GET)
+        if form.is_valid():
+            query = form.cleaned_data['query']
+            results = Post.objects.annotate(
+                search = SearchVector('title', 'body')
+            ).filter(search = query)
+        
+    return render(request,
+                  'blog/post/search.html',
+                  {'form':form,
+                  'query': query,
+                  'results':results,
+                  }  
+                    )
+
+
+def post_search_3(request):
+    """another way of searching using ranking and weighting  """
+    form = SearchForm()
+    query = None
+    results = []
+
+    if "query" in request.GET:
+        form = SearchForm(request.GET)
+       
+        if form.is_valid():
+            query = form.cleaned_data['query']
+            search_vector = SearchVector('title', weight= 'A') +\
+                            SearchVector('body', weight='B')
+                        
+            search_query = SearchQuery(query)
+            results = Post.objects.annotate(
+               
+                rank = SearchRank(search_vector, search_query)
+            ).filter(rank__gte = .3).order_by('-rank')
+    
+        
+    return render(request,
+                  'blog/post/search.html',
+                  {'form':form,
+                  'query': query,
+                  'results':results,
+                  }  
+                    )
+
+
+def post_search_2(request):
+    """another way of searching using ranking  """
+    form = SearchForm()
+    query = None
+    results = []
+
+    if "query" in request.GET:
+        form = SearchForm(request.GET)
+       
+        if form.is_valid():
+            query = form.cleaned_data['query']
+            search_vector = SearchVector('title', 'body')
+            search_query = SearchQuery(query)
+            results = Post.objects.annotate(
+                search=search_vector,
+                rank = SearchRank(search_vector, search_query)
+            ).filter(search = search_query).order_by('-rank')
+    
+        
+    return render(request,
+                  'blog/post/search.html',
+                  {'form':form,
+                  'query': query,
+                  'results':results,
+                  }  
+                    )
+
+def post_search_4(request):
+    """another way of searching using trigram similarty  """
+    form = SearchForm()
+    query = None
+    results = []
+
+    if "query" in request.GET:
+        form = SearchForm(request.GET)
+       
+        if form.is_valid():
+            query = form.cleaned_data['query']
+            # search_vector = SearchVector('title', 'body')
+            search_query = SearchQuery(query)
+            results = Post.objects.annotate(
+                similarity=TrigramSimilarity('title', query)
+            ).filter(similarity__gt=0.1).order_by('-similarity')
+    
+        
+    return render(request,
+                  'blog/post/search.html',
+                  {'form':form,
+                  'query': query,
+                  'results':results,
+                  }  
+                    )

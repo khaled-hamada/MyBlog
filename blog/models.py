@@ -10,6 +10,19 @@ class PublishedManager(models.Manager):
     def get_queryset(self):
         return super(PublishedManager, self).get_queryset().filter(status='published')
 
+    def searchBody(self, *args, **kwargs):
+        pass
+
+    def similar_posts(self, post_id):
+        post = self.get_queryset().get(id = post_id)
+        tags_list = post.tags.values_list('id', flat=True)
+        similar_posts = self.get_queryset().filter(tags__in=tags_list).\
+            exclude(id=post.id)
+        similar_posts = similar_posts.annotate(tags_count = models.Count('tags')).\
+             order_by('-tags_count', '-published')
+
+        return similar_posts
+
 class Postable(models.Model):
     body = models.TextField()
     created = models.DateTimeField(auto_now_add=True)

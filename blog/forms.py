@@ -16,3 +16,7 @@ class CommentPostForm(forms.ModelForm):
         model = Comment
         fields = ('name', 'email','body')
     
+
+class SearchForm(forms.Form):
+    """  allow users search using the postgres full search """
+    query = forms.CharField()

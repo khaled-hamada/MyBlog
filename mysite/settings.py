@@ -12,6 +12,8 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 
 from pathlib import Path
 
+import django
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -26,9 +28,10 @@ SECRET_KEY = 'django-insecure-nm5a49)mb3nbw!__-!r-xlt29tg2@6(k2^l_7afp^o7pbnufcm
 DEBUG = True
 
 #used in production
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
-
+# for sitemaps
+SITE_ID = 1
 # Application definition
 
 INSTALLED_APPS = [
@@ -38,7 +41,14 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.sites',
+    'django.contrib.sitemaps',
+    'django.contrib.postgres',
+    
+    #my apps
     'blog',
+    
+    #third parity apps
     'taggit',
 
 ]
@@ -77,10 +87,13 @@ WSGI_APPLICATION = 'mysite.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
+
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'blog',
+        'USER': 'postgres',
+        'PASSWORD': '6173',
     }
 }
 

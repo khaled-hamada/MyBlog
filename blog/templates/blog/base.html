@@ -25,6 +25,9 @@
         
        <h2>My Blog</h2>
        <p> This is my Blog I've written {% total_posts %} posts until now.</p>
+       <p>
+           Subscribe to my Blog Feed <a href="{% url 'blog:blog-feed' %}">Subscribe</a>
+       </p>
        <h3>Latest Posts</h3>
        {% show_latest_posts  %}
 
